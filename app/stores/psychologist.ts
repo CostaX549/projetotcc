@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { useNuxtApp } from '#app'
 
-
 interface PsychologistState {
   id: string
   username: string
@@ -13,7 +12,10 @@ interface PsychologistState {
   phoneNumber: string
   address: string
 }
-
+interface ConsultationType {
+ label: string,
+ value: string
+}
 export const usePsychologistStore = defineStore('psychologist', {
   state: (): PsychologistState => ({
     id: '',
@@ -33,25 +35,17 @@ export const usePsychologistStore = defineStore('psychologist', {
       await $axios.post('/api/Auth/login', { email, password })
     },
 
-    async register(
-      name: string,
-      email: string,
-      password: string,
-      phoneNumber: string,
-      consultationPrice: string,
-      role: string
-    ): Promise<any> {
-      const { $axios } = useNuxtApp()
-      const response = await $axios.post('/api/Auth/register', {
-        username: name,
-        email,
-        password,
-        phoneNumber,
-        consultationPrice,
-        role
-      })
-      return response
-    },
+ async register(formData: FormData): Promise<any> {
+  const { $axios } = useNuxtApp()
+
+  const response = await $axios.post('/api/Auth/register', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+
+  return response
+},
 
     async getUser(): Promise<any> {
       const { $axios } = useNuxtApp()
@@ -73,6 +67,39 @@ export const usePsychologistStore = defineStore('psychologist', {
       } catch (error) {
         console.error('Erro ao buscar usuário:', error)
       }
+    },
+
+    // ✅ Nova função para salvar a localização
+    async updateLocation(stateValue: string, cityValue: string, cepValue: string, streetNumberValue: string, lat: number|null, lon: number|null, consultationType: ConsultationType | null) {
+      const { $axios } = useNuxtApp()
+    console.log(consultationType);
+  
+        try {
+          const response = await $axios.post(
+            '/api/Auth/update-location',
+            {
+              state: stateValue,
+              city: cityValue,
+              cep: cepValue,
+              streetNumber: streetNumberValue,
+                 latitude: lat,
+            longitude: lon,
+            consultationType: consultationType?.value
+            },
+            
+          )
+
+          // Atualizar store com os novos valores
+          this.state = stateValue
+          this.city = cityValue
+          this.postalCode = cepValue
+          this.address = streetNumberValue
+
+          return response.data
+        } catch (error) {
+          console.error('Erro ao salvar localização:', error)
+        }
+      
     }
   },
 
