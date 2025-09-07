@@ -1,19 +1,48 @@
 <template>
   <div class="flex flex-col min-h-screen">
-    <!-- Navbar / Sidebar -->
-    <UDashboardNavbar
-      title="Dashboard"
-      :toggle="{ color: 'primary', variant: 'subtle', class: 'rounded-full' }"
-      :menu="menuItems"
-      @select="navigate"
-    />
+    <!-- Custom Navbar -->
+    <header class=" shadow px-6 py-4">
+      <nav class="flex justify-between items-center max-w-7xl mx-auto">
+        <!-- Logo / Título -->
+        <div class="flex items-center gap-2">
+          <span class="text-xl font-semibold">ConectaMente</span>
+        </div>
 
-    <!-- Conteúdo principal ocupa todo espaço restante -->
+        <!-- Menu -->
+        <ul class="hidden md:flex gap-6 text-sm font-medium">
+          <li v-for="item in menuItems" :key="item.label">
+            <button
+              @click="navigate(item.route)"
+              class="hover:text-primary-500 transition-colors"
+            >
+              {{ item.label }}
+            </button>
+          </li>
+        </ul>
+
+        <!-- Right side -->
+        <div class="flex items-center gap-3">
+          <!-- Theme toggle (Dark/Light) -->
+     
+  <UUser
+ 
+    :avatar="{
+      src: userStore.profilePicture || 'https://i.pravatar.cc/150?img=3',
+      icon: 'i-lucide-image'
+    }"
+  />
+          <!-- Mobile menu (optional dropdown / burger menu) -->
+          <!-- Placeholder for mobile menu -->
+        </div>
+      </nav>
+    </header>
+
+    <!-- Conteúdo principal -->
     <main class="flex-1 p-6 overflow-y-auto">
       <slot />
     </main>
 
-    <!-- Footer sempre no final -->
+    <!-- Footer -->
     <UFooter>
       <template #left>
         <p class="text-muted text-sm">Copyright © {{ new Date().getFullYear() }}</p>
@@ -55,13 +84,17 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { useUserStore } from "~/stores/user";
+import { usePsychologistStore } from "~/stores/psychologist"
+const userStore = useUserStore()
+const psychologistStore = usePsychologistStore()
 
 const router = useRouter()
 
-// Menu lateral / navbar
+// Itens do menu
 const menuItems = ref([
-  { label: 'Home', route: '/dashboard/home' },
-  { label: 'Atendimentos', route: '/dashboard/atendimentos' },
+  { label: 'Home', route: '/atendimento' },
+  { label: 'Agendamentos', route: '/agendamentos' },
   { label: 'Perfil', route: '/dashboard/perfil' },
   { label: 'Configurações', route: '/dashboard/configuracoes' }
 ])
@@ -70,7 +103,7 @@ function navigate(route: string) {
   router.push(route)
 }
 
-// Footer links
+// Itens do footer
 const footerItems: NavigationMenuItem[] = [
   { label: 'Figma Kit', to: 'https://www.figma.com/community/file/1288455405058138934', target: '_blank' },
   { label: 'Playground', to: 'https://stackblitz.com/edit/nuxt-ui', target: '_blank' },

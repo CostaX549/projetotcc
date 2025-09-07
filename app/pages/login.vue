@@ -32,6 +32,8 @@ type Schema = z.output<typeof schema>
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
     isLoading.value = true
    try {
+    console.log(payload.data.email)
+    console.log(payload.data.password)
     const response = await userStore.login(payload.data.email, payload.data.password)
  
       localStorage.setItem('access_token', response.data.accessToken)

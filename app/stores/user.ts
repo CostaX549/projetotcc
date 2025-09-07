@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user', {
     username: '',
     email: '',
     password: '',
+    profilePicture: '',
         psychologists: [] as any[],
             loading: false,
                 psychologistInfo: null as any | null
@@ -15,20 +16,47 @@ export const useUserStore = defineStore('user', {
   actions: {
     
     async login(email: string, password: string) {
-      const { $axios } = useNuxtApp()  // pegar instância correta e tipada do axios
+  const { $axios } = useNuxtApp()
 
-      try {
-        const response = await $axios.post('/api/Auth/login', { email, password })
-        return response
-      } catch (error) {
-        console.error('Erro ao fazer login:', error)
-        throw new Error('Falha no login')
-      }
-    },
+  // Monta o FormData
+  const formData = new FormData()
+  formData.append('email', email)
+  formData.append('password', password)
 
+  // Só pra debugar o que está enviando (não dá pra imprimir FormData direto, tem que iterar)
+  for (const [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`)
+  }
+
+  try {
+    // Envia o formData sem setar Content-Type, o browser faz isso automaticamente com boundary correto
+    const response = await $axios.post('/api/Auth/login', formData)
+    return response
+  } catch (error) {
+    console.error('Erro ao fazer login:', error)
+    throw new Error('Falha no login')
+  }
+},
+
+async createAppointment(payload: {
+  appointmentDateTime: string, // ISO string
+  duration: string,            // ex: "00:30:00"
+  psychologistId: string,
+  notes?: string | null
+}) {
+  const { $axios } = useNuxtApp()
+  try {
+    const response = await $axios.post('/api/Appointments', payload)
+    return response.data
+  } catch (error) {
+    console.error('Erro ao criar consulta:', error)
+    throw new Error('Falha ao agendar a consulta')
+  }
+},
   async register(formData: FormData) {
   const { $axios } = useNuxtApp()
   try {
+    console.log(formData)
     const response = await $axios.post('/api/Auth/register', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -63,7 +91,16 @@ async fetchPsychologists() {
         this.loading = false
       }
     },
-
+async fetchAppointments() {
+  const { $axios } = useNuxtApp()
+  try {
+    const response = await $axios.get('/api/Appointments')
+    return response.data // lista de agendamentos
+  } catch (error) {
+    console.error('Erro ao buscar agendamentos:', error)
+    throw new Error('Falha ao buscar agendamentos')
+  }
+},
     async getUser() {
       const { $axios } = useNuxtApp()
       try {
@@ -73,12 +110,18 @@ async fetchPsychologists() {
           this.id = user.id
           this.username = user.username
           this.email = user.email
+          this.profilePicture = user.profilePicture || ''
         }
         return user
       } catch (error) {
         console.error('Erro ao buscar usuário:', error)
       }
     },
+async getVideoCall(appointmentId: string) {
+    const { $axios } = useNuxtApp()
+  const res = await $axios.get(`/api/VideoCalls/appointment/${appointmentId}`)
+  return res.data
+},
      async fetchPsychologistInfo(userId: string) {
       const { $axios } = useNuxtApp()
       try {

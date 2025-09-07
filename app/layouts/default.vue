@@ -21,7 +21,16 @@ const links = [[{
   onSelect: () => {
     open.value = false
   }
-}, {
+},
+  {
+  label: 'Agenda',
+  icon: 'i-lucide-calendar',
+  to: '/doctor/schedule',
+  onSelect: () => {
+    open.value = false
+  }
+},
+ {
   label: 'Pacientes',
   icon: 'i-lucide-users',
   to: '/doctor/customers',
@@ -41,7 +50,9 @@ const links = [[{
     onSelect: () => {
       open.value = false
     }
-  }, {
+  },
+
+   {
     label: 'Membros',
     to: '/doctor/settings/members',
     onSelect: () => {

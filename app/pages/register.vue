@@ -72,6 +72,7 @@ async function onSubmit(payload: any, currentItem: TabsItem) {
     console.log(payload.data.profilePicture)
       const response = await userStore.register(formData)
       localStorage.setItem('access_token', response.data.accessToken)
+      console.log(formData)
       await userStore.getUser()
       router.push('/atendimento')
 
@@ -79,13 +80,14 @@ async function onSubmit(payload: any, currentItem: TabsItem) {
       formData.append('username', payload.data.clinicName)
       formData.append('email', payload.data.email)
       formData.append('password', payload.data.password)
+      
       formData.append('phoneNumber', payload.data.phone)
       formData.append('consultationPrice', payload.data.consultationPrice)
       formData.append('role', 'Professional')
       if (payload.data.profilePicture) {
         formData.append('profilePicture', profilePicture.value)
       }
-
+    
       const response = await psychologistStore.register(formData)
       localStorage.setItem('access_token', response.data.accessToken)
       await psychologistStore.getUser()
